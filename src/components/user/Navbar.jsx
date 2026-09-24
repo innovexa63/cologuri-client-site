@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import BrandLogo from '../common/BrandLogo';
 
 const navLinks = [
-  { label: 'লাইভ ট্যুর', href: '#live-tours' },
-  { label: 'ট্যুর গ্রুপ', href: '#tour-groups' },
-  { label: 'দর্শনীয় স্থান', href: '#destinations' },
-  { label: 'কীভাবে কাজ করে', href: '#how-it-works' },
-  { label: 'কাস্টম ট্যুর', href: '#custom-tour' },
-  { label: 'ব্লগ', href: '#blog' },
+  { label: 'লাইভ ট্যুর', path: '/live-tours' },
+  { label: 'ট্যুর গ্রুপ', path: '/tour-groups' },
+  { label: 'দর্শনীয় স্থান', path: '/destinations' },
+  { label: 'কীভাবে কাজ করে', path: '/how-it-works' },
+  { label: 'কাস্টম ট্যুর', path: '/custom-tour' },
+  { label: 'ব্লগ', path: '/blog' },
 ];
 
 export default function Navbar({
@@ -15,9 +17,14 @@ export default function Navbar({
   onNavigateHome,
   isSearchPage = false,
 }) {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [roleOpen, setRoleOpen] = useState(false);
+
+  const isInnerPage = location.pathname !== '/';
+  const hasSolidNav = scrolled || isInnerPage;
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20);
@@ -32,17 +39,16 @@ export default function Navbar({
     superAdmin: 'সুপার অ্যাডমিন',
   };
 
-  const handleLinkClick = (e, href) => {
-    if (isSearchPage && onNavigateHome) {
-      e.preventDefault();
-      onNavigateHome(href);
-    }
+  const handleLinkNavigation = (path) => {
+    setMenuOpen(false);
+    navigate(path);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <header
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-        scrolled
+        hasSolidNav
           ? 'bg-[#EEFCF7]/95 backdrop-blur-xl border-b border-[#BCEEDB] shadow-[0_4px_20px_rgba(3,37,26,0.08)]'
           : 'bg-transparent border-b border-transparent'
       }`}
@@ -50,72 +56,45 @@ export default function Navbar({
       <div className="h-20 max-w-[1360px] mx-auto px-4 md:px-8 flex items-center justify-between gap-4">
         {/* Logo */}
         <a
-          href="#"
+          href="/"
           onClick={(e) => {
-            if (onNavigateHome) {
-              e.preventDefault();
-              onNavigateHome();
-            }
+            e.preventDefault();
+            handleLinkNavigation('/');
           }}
-          className="flex items-center gap-2.5 shrink-0 group cursor-pointer"
-          aria-label="GhurBei হোমপেজ"
+          className="flex items-center shrink-0 group cursor-pointer transition-transform duration-200 hover:scale-[1.02]"
+          aria-label="চলোঘুড়ি হোমপেজ"
         >
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center shadow-md transition-transform duration-200 group-hover:scale-105"
-            style={{
-              background: 'linear-gradient(135deg, #168B5E 0%, #03251A 100%)',
-              border: '1px solid rgba(127, 229, 186, 0.5)',
-            }}
-          >
-            <span
-              className="text-xl font-bold leading-none text-white"
-              style={{ fontFamily: '"Tiro Bangla", serif' }}
-            >
-              ঘ
-            </span>
-          </div>
-          <div className="flex flex-col leading-tight">
-            <span
-              className="text-2xl font-bold tracking-tight transition-colors duration-200"
-              style={{
-                color: scrolled ? '#03251A' : '#FFFFFF',
-                fontFamily: '"Tiro Bangla", serif',
-              }}
-            >
-              GhurBei
-            </span>
-            <span
-              className="text-xs font-semibold tracking-wider -mt-1 transition-colors duration-200"
-              style={{
-                color: scrolled ? '#127A52' : '#7FE5BA',
-                fontFamily: '"Tiro Bangla", serif',
-              }}
-            >
-              ঘুরবে সবাই
-            </span>
-          </div>
+          <BrandLogo
+            theme={hasSolidNav ? 'light' : 'dark'}
+            className="h-10 sm:h-12 w-auto max-w-[210px] sm:max-w-[250px]"
+            alt="চলোঘুড়ি"
+          />
         </a>
 
         {/* Desktop Nav Links */}
         <nav className="hidden lg:flex items-center gap-1.5" aria-label="প্রধান নেভিগেশন">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={(e) => handleLinkClick(e, link.href)}
-              className={`px-3.5 py-2 rounded-lg text-[16px] font-semibold transition-all duration-200 ${
-                scrolled
-                  ? 'hover:text-[#127A52] hover:bg-[#7FE5BA]/20'
-                  : 'hover:text-[#7FE5BA] hover:bg-white/12'
-              }`}
-              style={{
-                color: scrolled ? '#03251A' : '#F0FDF8',
-                fontFamily: '"Hind Siliguri", "Noto Sans Bengali", sans-serif',
-              }}
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link) => {
+            const isActive = location.pathname === link.path;
+            return (
+              <button
+                key={link.path}
+                type="button"
+                onClick={() => handleLinkNavigation(link.path)}
+                className={`px-3.5 py-2 rounded-xl text-[15px] font-bold transition-all duration-200 cursor-pointer ${
+                  isActive
+                    ? 'bg-[#03251A] text-white shadow-sm'
+                    : hasSolidNav
+                    ? 'hover:text-[#127A52] hover:bg-[#7FE5BA]/20 text-[#03251A]'
+                    : 'hover:text-[#7FE5BA] hover:bg-white/12 text-[#F0FDF8]'
+                }`}
+                style={{
+                  fontFamily: '"Hind Siliguri", "Noto Sans Bengali", sans-serif',
+                }}
+              >
+                {link.label}
+              </button>
+            );
+          })}
         </nav>
 
         {/* Right actions */}
@@ -228,23 +207,28 @@ export default function Navbar({
           }}
         >
           <div className="max-w-[1360px] mx-auto px-4 py-4 flex flex-col gap-1">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={(e) => {
-                  setMenuOpen(false);
-                  handleLinkClick(e, link.href);
-                }}
-                className="px-4 py-2.5 text-[16px] font-semibold rounded-lg transition-colors"
-                style={{
-                  color: scrolled ? '#03251A' : '#F0FDF8',
-                  fontFamily: '"Hind Siliguri", "Noto Sans Bengali", sans-serif',
-                }}
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = location.pathname === link.path;
+              return (
+                <button
+                  key={link.path}
+                  type="button"
+                  onClick={() => handleLinkNavigation(link.path)}
+                  className={`w-full text-left px-4 py-3 text-[16px] font-bold rounded-xl transition-colors cursor-pointer ${
+                    isActive
+                      ? 'bg-emerald-600 text-white'
+                      : hasSolidNav
+                      ? 'text-[#03251A] hover:bg-emerald-100/50'
+                      : 'text-[#F0FDF8] hover:bg-white/10'
+                  }`}
+                  style={{
+                    fontFamily: '"Hind Siliguri", "Noto Sans Bengali", sans-serif',
+                  }}
+                >
+                  {link.label}
+                </button>
+              );
+            })}
             <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-white/10">
               {Object.keys(roleLabels).map((r) => (
                 <button

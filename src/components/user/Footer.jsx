@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import BrandLogo from '../common/BrandLogo';
 
 export default function Footer() {
   const [email, setEmail] = useState('');
@@ -24,23 +26,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pb-12 border-b border-white/10">
           {/* Brand Column */}
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3">
-              <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-lg"
-                style={{
-                  backgroundColor: 'var(--color-secondary)',
-                  color: '#ffffff',
-                  fontFamily: '"Tiro Bangla", serif',
-                }}
-              >
-                ঘ
-              </div>
-              <span
-                className="text-xl font-bold text-white tracking-tight"
-                style={{ fontFamily: '"Tiro Bangla", serif' }}
-              >
-                GhurBei
-              </span>
+            <div className="flex items-center">
+              <BrandLogo theme="dark" className="h-12 w-auto" alt="চলোঘুড়ি" />
             </div>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--color-on-primary-container)' }}>
               ঘুরবে সবাই একসাথে সহজে — বাংলাদেশের প্রতিটি কোণে অ্যাডভেঞ্চার এবং আস্থার নির্ভরযোগ্য ট্যুর মার্কেটপ্লেস।
@@ -91,29 +78,34 @@ export default function Footer() {
             </h4>
             <ul className="flex flex-col gap-2 text-sm">
               <li>
-                <a href="#destinations" className="hover:text-white transition-colors py-0.5 inline-block">
-                  দর্শনীয় স্থান
-                </a>
-              </li>
-              <li>
-                <a href="#live-tours" className="hover:text-white transition-colors py-0.5 inline-block">
+                <Link to="/live-tours" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-white transition-colors py-0.5 inline-block">
                   লাইভ ট্যুর ক্যালেন্ডার
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#how-it-works" className="hover:text-white transition-colors py-0.5 inline-block">
+                <Link to="/tour-groups" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-white transition-colors py-0.5 inline-block">
+                  ট্যুর গ্রুপ ও এজেন্সি
+                </Link>
+              </li>
+              <li>
+                <Link to="/destinations" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-white transition-colors py-0.5 inline-block">
+                  দর্শনীয় স্থান
+                </Link>
+              </li>
+              <li>
+                <Link to="/how-it-works" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-white transition-colors py-0.5 inline-block">
                   কীভাবে কাজ করে
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#custom-tour" className="hover:text-white transition-colors py-0.5 inline-block">
+                <Link to="/custom-tour" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-white transition-colors py-0.5 inline-block">
                   কাস্টম ট্যুর বিল্ডার
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#faq" className="hover:text-white transition-colors py-0.5 inline-block">
-                  প্রায়শই জিজ্ঞাসিত প্রশ্ন
-                </a>
+                <Link to="/blog" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-white transition-colors py-0.5 inline-block">
+                  ভ্রমণ ব্লগ ও গাইড
+                </Link>
               </li>
             </ul>
           </div>
@@ -128,29 +120,24 @@ export default function Footer() {
             </h4>
             <ul className="flex flex-col gap-2 text-sm">
               <li>
-                <a href="#host" className="hover:text-white transition-colors py-0.5 inline-block">
-                  হোস্ট হিসেবে যুক্ত হোন
+                <a
+                  href="http://localhost:5174/login"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-white transition-colors py-0.5 inline-block"
+                >
+                  হোস্ট হিসেবে যুক্ত হোন (অ্যাডমিন)
                 </a>
               </li>
               <li>
-                <a href="#guidelines" className="hover:text-white transition-colors py-0.5 inline-block">
-                  গ্রুপ গাইডলাইন
-                </a>
+                <Link to="/how-it-works" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-white transition-colors py-0.5 inline-block">
+                  গ্রুপ গাইডলাইন ও ভেরিফিকেশন
+                </Link>
               </li>
               <li>
-                <a href="#verification" className="hover:text-white transition-colors py-0.5 inline-block">
-                  ভেরিফিকেশন প্রসেস
-                </a>
-              </li>
-              <li>
-                <a href="#joint" className="hover:text-white transition-colors py-0.5 inline-block">
+                <Link to="/live-tours" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="hover:text-white transition-colors py-0.5 inline-block">
                   জয়েন্ট ট্যুর পার্টনারশিপ
-                </a>
-              </li>
-              <li>
-                <a href="#support" className="hover:text-white transition-colors py-0.5 inline-block">
-                  হোস্ট সাপোর্ট পোর্টাল
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -211,7 +198,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs" style={{ color: 'var(--color-on-primary-container)' }}>
           <p className="text-center sm:text-left">
-            © ২০২৫ GhurBei — সর্বস্বত্ব সংরক্ষিত। প্রেমে ও গর্বে বাংলাদেশে তৈরি।
+            © ২০২৫ চলোঘুড়ি (Cologuri) — সর্বস্বত্ব সংরক্ষিত। প্রেমে ও গর্বে বাংলাদেশে তৈরি।
           </p>
           <div className="flex items-center gap-4">
             <a href="#terms" className="hover:text-white transition-colors">
