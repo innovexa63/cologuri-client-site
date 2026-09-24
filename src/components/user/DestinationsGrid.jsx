@@ -1,8 +1,10 @@
+import { Link } from 'react-router-dom';
+
 const destinations = [
   {
     id: 'sajek',
     name: 'সাজেক ভ্যালি — মেঘ ও পাহাড়ের আলিঙ্গন',
-    district: 'রাঙামাটি • বাঘাইছড়ি',
+    hierarchy: 'চট্টগ্রাম ❯ রাঙামাটি ❯ বাঘাইছড়ি',
     badge: 'মেঘের রাজ্য',
     altitude: '১,৮০০ ফুট',
     rating: '৪.৯',
@@ -16,7 +18,7 @@ const destinations = [
   {
     id: 'sundarbans',
     name: 'সুন্দরবন ম্যানগ্রোভ',
-    district: 'খুলনা • বাগেরহাট',
+    hierarchy: 'খুলনা ❯ বাগেরহাট ❯ মোংলা',
     tours: '৬টি গ্রুপ ট্যুর',
     desc: 'হরিণ, কুমির ও রয়্যাল বেঙ্গল টাইগারের বিশ্বখ্যাত প্রাকৃতিক আবাসস্থল।',
     price: '৳৭,৫০০',
@@ -26,7 +28,7 @@ const destinations = [
   {
     id: 'coxsbazar',
     name: 'কক্সবাজার সমুদ্র সৈকত',
-    district: 'চট্টগ্রাম • কক্সবাজার',
+    hierarchy: 'চট্টগ্রাম ❯ কক্সবাজার ❯ সদর',
     tours: '১২টি গ্রুপ ট্যুর',
     desc: 'বিশ্বের দীর্ঘতম ১২০ কিলোমিটারের প্রাকৃতিক বালুকাময় সমুদ্র সৈকত।',
     price: '৳৩,৮০০',
@@ -36,7 +38,7 @@ const destinations = [
   {
     id: 'bandarban',
     name: 'কেওক্রাডং ও নাফাকুম',
-    district: 'পার্বত্য বান্দরবান',
+    hierarchy: 'চট্টগ্রাম ❯ বান্দরবান ❯ রুমা',
     tours: '৯টি গ্রুপ ট্যুর',
     desc: 'অভিযাত্রীদের প্রিয় পাহাড়ি ট্রেইল, বগালেক ও রোমাঞ্চকর ঝর্ণা দর্শন।',
     price: '৳৫,২০০',
@@ -58,18 +60,18 @@ export default function DestinationsGrid() {
             <div className="inline-flex items-center gap-1 label-md uppercase tracking-wider mb-1"
                  style={{ color: 'var(--color-secondary)' }}>
               <span className="icon text-base">map</span>
-              দর্শনার্থীদের শীর্ষ পছন্দ
+              বিভাগ ❯ জেলা ❯ উপজেলা ভিত্তিক ভ্রমণ
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight"
                 style={{ color: 'var(--color-primary)', fontFamily: '"Tiro Bangla", serif' }}>
               বাংলার সেরা দৃশ্যপট ও অ্যাডভেঞ্চার
             </h2>
           </div>
-        <a href="#" className="inline-flex items-center gap-2 label-lg transition-colors group"
+        <Link to="/destinations" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="inline-flex items-center gap-2 label-lg transition-colors group cursor-pointer"
            style={{ color: 'var(--color-secondary)' }}>
-          <span>সকল ৬৪ জেলার তালিকা দেখুন</span>
+          <span>সকল বিভাগ ও জেলার পূর্ণাঙ্গ তালিকা</span>
           <span className="icon text-lg" style={{ transition: 'transform 0.2s' }}>arrow_forward</span>
-        </a>
+        </Link>
       </div>
 
       {/* Asymmetrical Bento Grid */}
