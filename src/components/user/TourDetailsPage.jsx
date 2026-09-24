@@ -11,13 +11,16 @@ const boardingOptions = [
   'আব্দুল্লাহপুর বাসস্ট্যান্ড, উত্তরা (ঢাকা) — রাত ১১:১৫ টা',
 ];
 
+const EMPTY_SEATS = [];
+
 export default function TourDetailsPage({
   tourId,
   onBack,
   onNavigateHome,
 }) {
   const tour = useMemo(() => getTourById(tourId), [tourId]);
-  const lockedSeatsMap = useStore((state) => state.lockedSeats[tourId] || []);
+  const lockedSeats = useStore((state) => state.lockedSeats);
+  const lockedSeatsMap = lockedSeats[tourId] || EMPTY_SEATS;
 
   // Seat booking state
   const [selectedSeats, setSelectedSeats] = useState([]);

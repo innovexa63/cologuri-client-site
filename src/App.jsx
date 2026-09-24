@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Navbar from './components/user/Navbar';
 import HeroSection from './components/user/HeroSection';
+import AdvertiseBannerSlider from './components/user/AdvertiseBannerSlider';
 import LiveJointTours from './components/user/LiveJointTours';
 import TourGroupsMarquee from './components/user/TourGroupsMarquee';
 import DestinationsGrid from './components/user/DestinationsGrid';
@@ -13,6 +14,12 @@ import BlogSection from './components/user/BlogSection';
 import Footer from './components/user/Footer';
 import SearchResultsPage from './components/user/SearchResultsPage';
 import TourDetailsPage from './components/user/TourDetailsPage';
+import LiveToursPage from './pages/LiveToursPage';
+import TourGroupsPage from './pages/TourGroupsPage';
+import DestinationsPage from './pages/DestinationsPage';
+import HowItWorksPage from './pages/HowItWorksPage';
+import CustomTourPage from './pages/CustomTourPage';
+import BlogPage from './pages/BlogPage';
 import { useStore } from './store/useStore';
 
 // User Portal Wrapper with persistent Navbar and Footer
@@ -36,9 +43,11 @@ function UserPortal({ children, isSearchPage = false }) {
 
   const handleRoleChange = (newRole) => {
     setRole(newRole);
-    if (newRole === 'groupAdmin' || newRole === 'superAdmin') {
-      const adminUrl = import.meta.env.VITE_ADMIN_URL || 'http://localhost:5174';
-      window.open(adminUrl, '_blank');
+    const adminUrl = import.meta.env.VITE_ADMIN_URL || 'http://localhost:5174';
+    if (newRole === 'groupAdmin') {
+      window.open(`${adminUrl}/group-admin`, '_blank');
+    } else if (newRole === 'superAdmin') {
+      window.open(`${adminUrl}/super-admin`, '_blank');
     }
   };
 
@@ -56,7 +65,7 @@ function UserPortal({ children, isSearchPage = false }) {
   );
 }
 
-// Home Page
+// Home Page (Unchanged - keeps all original sections intact)
 function HomePage() {
   const navigate = useNavigate();
   const setSearchQuery = useStore((state) => state.setSearchQuery);
@@ -76,6 +85,7 @@ function HomePage() {
     <UserPortal isSearchPage={false}>
       <main id="main-content" className="w-full">
         <HeroSection onSearch={handleSearch} />
+        <AdvertiseBannerSlider onSelectBannerTour={handleSelectTour} />
         <LiveJointTours onSelectTour={handleSelectTour} />
         <TourGroupsMarquee />
         <DestinationsGrid />
@@ -151,6 +161,57 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/search" element={<SearchRoute />} />
         <Route path="/tours/:id" element={<TourDetailsRoute />} />
+        
+        {/* Dedicated Menu Pages */}
+        <Route
+          path="/live-tours"
+          element={
+            <UserPortal isSearchPage={false}>
+              <LiveToursPage />
+            </UserPortal>
+          }
+        />
+        <Route
+          path="/tour-groups"
+          element={
+            <UserPortal isSearchPage={false}>
+              <TourGroupsPage />
+            </UserPortal>
+          }
+        />
+        <Route
+          path="/destinations"
+          element={
+            <UserPortal isSearchPage={false}>
+              <DestinationsPage />
+            </UserPortal>
+          }
+        />
+        <Route
+          path="/how-it-works"
+          element={
+            <UserPortal isSearchPage={false}>
+              <HowItWorksPage />
+            </UserPortal>
+          }
+        />
+        <Route
+          path="/custom-tour"
+          element={
+            <UserPortal isSearchPage={false}>
+              <CustomTourPage />
+            </UserPortal>
+          }
+        />
+        <Route
+          path="/blog"
+          element={
+            <UserPortal isSearchPage={false}>
+              <BlogPage />
+            </UserPortal>
+          }
+        />
+
         <Route path="*" element={<HomePage />} />
       </Routes>
     </BrowserRouter>
