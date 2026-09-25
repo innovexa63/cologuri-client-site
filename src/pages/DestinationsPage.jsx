@@ -1,8 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import { allDestinations } from '../data/destinationsData';
-
 
 export default function DestinationsPage() {
   const navigate = useNavigate();
@@ -16,27 +14,21 @@ export default function DestinationsPage() {
 
   // Extract unique Divisions
   const divisions = useMemo(() => {
-
     return [...new Set(allDestinations.map((d) => d.division))];
-
   }, []);
 
   // Extract unique Districts based on selected Division
   const availableDistricts = useMemo(() => {
     const filtered =
       selectedDivision === 'all'
-
         ? allDestinations
         : allDestinations.filter((d) => d.division === selectedDivision);
-
     return [...new Set(filtered.map((d) => d.district))];
   }, [selectedDivision]);
 
   // Extract unique Upazilas based on selected District
   const availableUpazilas = useMemo(() => {
-
     const filtered = allDestinations.filter((d) => {
-
       const matchDiv = selectedDivision === 'all' || d.division === selectedDivision;
       const matchDist = selectedDistrict === 'all' || d.district === selectedDistrict;
       return matchDiv && matchDist;
@@ -65,9 +57,7 @@ export default function DestinationsPage() {
 
   // Filtered Destinations
   const filteredDestinations = useMemo(() => {
-
     return allDestinations.filter((d) => {
-
       const matchDiv = selectedDivision === 'all' || d.division === selectedDivision;
       const matchDist = selectedDistrict === 'all' || d.district === selectedDistrict;
       const matchUp = selectedUpazila === 'all' || d.upazila === selectedUpazila;
@@ -77,16 +67,12 @@ export default function DestinationsPage() {
         d.division.toLowerCase().includes(searchQuery.toLowerCase()) ||
         d.district.toLowerCase().includes(searchQuery.toLowerCase()) ||
         d.upazila.toLowerCase().includes(searchQuery.toLowerCase()) ||
-
         (d.highlights && d.highlights.some((h) => h.toLowerCase().includes(searchQuery.toLowerCase())));
-
       return matchDiv && matchDist && matchUp && matchSearch;
     });
   }, [selectedDivision, selectedDistrict, selectedUpazila, searchQuery]);
 
-
   // Grouped by Division -> District -> Upazila
-
   const groupedData = useMemo(() => {
     const groups = {};
     filteredDestinations.forEach((item) => {
@@ -94,24 +80,20 @@ export default function DestinationsPage() {
         groups[item.division] = {};
       }
       if (!groups[item.division][item.district]) {
-
         groups[item.division][item.district] = {};
       }
       if (!groups[item.division][item.district][item.upazila]) {
         groups[item.division][item.district][item.upazila] = [];
       }
       groups[item.division][item.district][item.upazila].push(item);
-
     });
     return groups;
   }, [filteredDestinations]);
-
 
   const handleCardClick = (destId) => {
     navigate(`/destinations/${destId}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
 
   return (
     <div className="w-full min-h-screen bg-slate-50 pt-20 pb-16">
@@ -121,17 +103,13 @@ export default function DestinationsPage() {
         <div className="max-w-[1360px] mx-auto relative z-10 text-center sm:text-left">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-semibold mb-3">
             <span className="material-symbols-outlined text-sm">hub</span>
-
             <span>প্রশাসনিক শ্রেণিবিন্যাস: বিভাগ ❯ জেলা ❯ উপজেলা ভিত্তিক ভ্রমণ</span>
-
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-serif tracking-tight text-white mb-3">
             বাংলাদেশের দর্শনীয় স্থানসমূহ
           </h1>
           <p className="text-emerald-100/90 text-sm sm:text-base max-w-2xl leading-relaxed">
-
             বিভাগ, জেলা এবং উপজেলা অনুযায়ী প্রতিটি অঞ্চলের বিখ্যাত দর্শনীয় স্থানসমূহ কার্ড আকারে সাজানো। যে কোনো কার্ডে ক্লিক করে সেই স্থানের বিস্তারিত ইতিহাস, ছবি ও ভ্রমণ নির্দেশিকা দেখুন।
-
           </p>
         </div>
       </section>
@@ -151,9 +129,7 @@ export default function DestinationsPage() {
                   ফিল্টার করুন (বিভাগ ❯ জেলা ❯ উপজেলা)
                 </h3>
                 <span className="text-xs text-slate-500">
-
                   উপজেলা ফিল্টার করলে সেই উপজেলার সমস্ত দর্শনীয় স্থান কার্ড গ্রিডে প্রদর্শিত হবে
-
                 </span>
               </div>
             </div>
@@ -182,9 +158,7 @@ export default function DestinationsPage() {
                 }`}
               >
                 <span className="material-symbols-outlined text-[16px]">grid_view</span>
-
                 <span>সকল কার্ড গ্রিড</span>
-
               </button>
             </div>
           </div>
@@ -323,21 +297,17 @@ export default function DestinationsPage() {
           <div className="flex items-center gap-2 text-sm text-slate-600 font-medium">
             <span>ফলাফল:</span>
             <span className="font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-100">
-
               {filteredDestinations.length} টি দর্শনীয় স্থান পাওয়া গেছে
             </span>
             {selectedDivision !== 'all' && (
               <span className="text-xs text-slate-500 hidden sm:inline">
-
                 • {selectedDivision} বিভাগ {selectedDistrict !== 'all' && `❯ ${selectedDistrict} জেলা`} {selectedUpazila !== 'all' && `❯ ${selectedUpazila} উপজেলা`}
               </span>
             )}
           </div>
-
           <span className="text-xs text-emerald-700 font-semibold">
             💡 যে কোনো কার্ডে ক্লিক করে সম্পূর্ণ ছবি ও ইতিহাস দেখুন
           </span>
-
         </div>
 
         {filteredDestinations.length === 0 ? (
@@ -379,27 +349,22 @@ export default function DestinationsPage() {
                   </div>
 
                   <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">
-
                     {Object.values(districtsObj).flatMap((u) => Object.values(u)).flat().length} টি স্থান
-
                   </span>
                 </div>
 
                 {/* Districts and Upazilas inside this Division */}
                 <div className="space-y-8">
-
                   {Object.entries(districtsObj).map(([districtName, upazilasObj]) => (
                     <div key={districtName} className="pl-0 sm:pl-3 border-l-0 sm:border-l-2 border-emerald-500/30">
                       
                       {/* District Header */}
-
                       <div className="flex items-center gap-2 mb-4">
                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                         <h3 className="text-base sm:text-lg font-bold text-slate-800 font-serif">
                           {districtName} জেলা
                         </h3>
                         <span className="text-xs text-slate-400 font-normal">
-
                           ({Object.values(upazilasObj).flat().length} টি স্থান)
                         </span>
                       </div>
@@ -433,7 +398,6 @@ export default function DestinationsPage() {
                               ))}
                             </div>
                           </div>
-
                         ))}
                       </div>
                     </div>

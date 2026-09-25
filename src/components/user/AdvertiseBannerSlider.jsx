@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 
-
 // ৩টি প্রিমিয়াম গ্রুপ ডিসকাউন্ট অফার ব্যানার (বাংলা ফন্ট ও যথাযথ রেশিও অনুযায়ী)
 const advertiseBanners = [
   {
@@ -53,39 +52,6 @@ const advertiseBanners = [
     gradient: 'from-[#172312]/95 via-[#1c3319]/85 to-transparent',
     accentColor: '#fbbf24',
     badgeBg: 'bg-amber-500/20 border-amber-400/40 text-amber-300',
-
-// Banners list - add as many banner images as you want here
-const advertiseBanners = [
-  {
-    id: 'banner-1',
-    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&h=650&fit=crop&q=85',
-    alt: 'সাজেক ভ্যালি মেঘের মেলা স্পেশাল অফার ব্যানার',
-    tourId: 'sajek-1',
-  },
-  {
-    id: 'banner-2',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&h=650&fit=crop&q=85',
-    alt: 'কক্সবাজার সমুদ্র সৈকত ও ইনানী ড্রাইভ ব্যানার',
-    tourId: 'coxsbazar-1',
-  },
-  {
-    id: 'banner-3',
-    image: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=1600&h=650&fit=crop&q=85',
-    alt: 'সুন্দরবন ম্যানগ্রোভ ক্রুজ সাফারি ব্যানার',
-    tourId: 'sundarban-1',
-  },
-  {
-    id: 'banner-4',
-    image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&h=650&fit=crop&q=85',
-    alt: 'বান্দরবান কেওক্রাডং সামিট ট্রেকিং ব্যানার',
-    tourId: 'bandarban-1',
-  },
-  {
-    id: 'banner-5',
-    image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1600&h=650&fit=crop&q=85',
-    alt: 'টাঙ্গুয়ার হাওর লাক্সারি হাউসবোট ব্যানার',
-    tourId: 'sajek-1',
-
   },
 ];
 
@@ -96,21 +62,13 @@ export default function AdvertiseBannerSlider({ onSelectBannerTour }) {
 
   const total = advertiseBanners.length;
 
-
   // Auto-slide every 4.5 seconds (মাউস হোভার করলে পজ হবে)
-
-  // Auto-slide every 4 seconds (pauses on mouse hover)
-
   useEffect(() => {
     if (isPaused) return;
 
     timerRef.current = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % total);
-
     }, 4500);
-
-    }, 4000);
-
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -128,7 +86,6 @@ export default function AdvertiseBannerSlider({ onSelectBannerTour }) {
 
   return (
     <section
-
       className="w-full max-w-[1360px] mx-auto px-4 md:px-8 py-3 sm:py-5 relative z-20"
       aria-label="গ্রুপ ডিসকাউন্ট অফার ব্যানার স্লাইডার"
       onMouseEnter={() => setIsPaused(true)}
@@ -138,7 +95,6 @@ export default function AdvertiseBannerSlider({ onSelectBannerTour }) {
       <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-[0_16px_45px_rgba(2,31,21,0.18)] border border-[#CFE3D5] min-h-[260px] sm:min-h-[300px] md:min-h-[340px] lg:h-[370px] bg-slate-950 group select-none">
         
         {/* Banner Slides */}
-
         {advertiseBanners.map((banner, index) => {
           const isActive = index === currentIndex;
           return (
@@ -149,7 +105,6 @@ export default function AdvertiseBannerSlider({ onSelectBannerTour }) {
                 isActive ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
               }`}
             >
-
               {/* Background Photo */}
               <img
                 src={banner.bgImage}
@@ -261,20 +216,16 @@ export default function AdvertiseBannerSlider({ onSelectBannerTour }) {
                 </div>
 
               </div>
-
             </div>
           );
         })}
 
         {/* Centered Slide Changer Dots (মাঝে অবস্থিত ডট নেভিগেশন) */}
-
         <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center justify-center gap-2 bg-black/50 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 shadow-lg">
-
           {advertiseBanners.map((_, idx) => (
             <button
               key={idx}
               type="button"
-
               onClick={(e) => {
                 e.stopPropagation();
                 setCurrentIndex(idx);
@@ -283,14 +234,11 @@ export default function AdvertiseBannerSlider({ onSelectBannerTour }) {
               className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
                 idx === currentIndex
                   ? 'w-7 bg-amber-400 shadow-sm'
-
                   : 'w-2 bg-white/50 hover:bg-white/90'
               }`}
             />
           ))}
         </div>
-
-
 
       </div>
     </section>
