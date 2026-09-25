@@ -20,6 +20,7 @@ export default function TourDetailsPage({
   onNavigateHome,
 }) {
   const tour = useMemo(() => getTourById(tourId), [tourId]);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const queryGroup = searchParams.get('group');
 
@@ -82,6 +83,7 @@ export default function TourDetailsPage({
       }
     }
   }, [queryGroup, partnerGroups]);
+
 
   // Seat booking state
   const [selectedSeats, setSelectedSeats] = useState([]);

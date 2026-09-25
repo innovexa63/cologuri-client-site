@@ -17,7 +17,9 @@ import TourDetailsPage from './components/user/TourDetailsPage';
 import LiveToursPage from './pages/LiveToursPage';
 import TourGroupsPage from './pages/TourGroupsPage';
 import DestinationsPage from './pages/DestinationsPage';
+
 import DestinationDetailsPage from './pages/DestinationDetailsPage';
+
 import HowItWorksPage from './pages/HowItWorksPage';
 import CustomTourPage from './pages/CustomTourPage';
 import BlogPage from './pages/BlogPage';
@@ -189,6 +191,7 @@ export default function App() {
           }
         />
         <Route
+
           path="/destinations/:id"
           element={
             <UserPortal isSearchPage={true}>
@@ -197,6 +200,8 @@ export default function App() {
           }
         />
         <Route
+
+
           path="/how-it-works"
           element={
             <UserPortal isSearchPage={false}>
