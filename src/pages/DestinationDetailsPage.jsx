@@ -10,13 +10,31 @@ export default function DestinationDetailsPage() {
   const dest = allDestinations.find((d) => d.id === id) || allDestinations[0];
 
   const [activeTab, setActiveTab] = useState('overview');
-  const [selectedPhoto, setSelectedPhoto] = useState(dest.image);
+  const [selectedPhoto, setSelectedPhoto] = useState(dest ? dest.image : '');
   const [lightboxImg, setLightboxImg] = useState(null);
 
   useEffect(() => {
-    setSelectedPhoto(dest.image);
+    if (dest) {
+      setSelectedPhoto(dest.image);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [dest]);
+
+  if (!dest) {
+    return (
+      <div className="w-full min-h-screen bg-slate-50 pt-28 pb-20 text-center">
+        <h2 className="text-xl font-bold text-slate-800 font-serif">গন্তব্যটি পাওয়া যায়নি</h2>
+        <button
+          onClick={() => navigate('/destinations')}
+          className="mt-4 px-5 py-2.5 bg-emerald-700 text-white rounded-xl font-bold text-sm cursor-pointer"
+        >
+          সকল দর্শনীয় স্থান দেখুন
+        </button>
+      </div>
+    );
+  }
+
+  const galleryList = [dest.image, ...(dest.gallery || [])].filter(Boolean);
 
   return (
     <div className="w-full min-h-screen bg-slate-50 pt-20 pb-20">
@@ -85,7 +103,7 @@ export default function DestinationDetailsPage() {
               <button
                 type="button"
                 onClick={() => {
-                  navigate(`/tours/${dest.relatedTourId}`);
+                  navigate(`/tours/${dest.relatedTourId || 'sajek-1'}`);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
                 className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-emerald-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-1.5 cursor-pointer"
@@ -102,7 +120,7 @@ export default function DestinationDetailsPage() {
             {/* Big Main Featured Photo */}
             <div className="lg:col-span-8 relative h-[300px] sm:h-[420px] rounded-2xl overflow-hidden shadow-md bg-slate-900 group">
               <img
-                src={selectedPhoto}
+                src={selectedPhoto || dest.image}
                 alt={dest.name}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
@@ -111,7 +129,7 @@ export default function DestinationDetailsPage() {
               {/* Expand button */}
               <button
                 type="button"
-                onClick={() => setLightboxImg(selectedPhoto)}
+                onClick={() => setLightboxImg(selectedPhoto || dest.image)}
                 className="absolute bottom-4 right-4 px-3.5 py-1.5 rounded-xl bg-black/60 hover:bg-black/80 text-white text-xs font-semibold backdrop-blur-md border border-white/20 flex items-center gap-1.5 cursor-pointer transition-colors"
               >
                 <span className="material-symbols-outlined text-[16px]">fullscreen</span>
@@ -121,7 +139,7 @@ export default function DestinationDetailsPage() {
 
             {/* Thumbnails Stack */}
             <div className="lg:col-span-4 grid grid-cols-2 lg:grid-cols-1 gap-3">
-              {[dest.image, ...(dest.gallery || [])].slice(0, 4).map((imgUrl, idx) => (
+              {galleryList.slice(0, 4).map((imgUrl, idx) => (
                 <div
                   key={idx}
                   onClick={() => setSelectedPhoto(imgUrl)}
@@ -149,7 +167,7 @@ export default function DestinationDetailsPage() {
               </span>
               <div>
                 <span className="text-[11px] text-slate-400 block font-medium">ভৌগোলিক উচ্চতা</span>
-                <span className="text-xs sm:text-sm font-bold text-slate-900">{dest.altitude}</span>
+                <span className="text-xs sm:text-sm font-bold text-slate-900">{dest.altitude || 'প্রাকৃতিক উচ্চতা'}</span>
               </div>
             </div>
 
@@ -159,7 +177,7 @@ export default function DestinationDetailsPage() {
               </span>
               <div>
                 <span className="text-[11px] text-slate-400 block font-medium">ভ্রমণের সেরা সময়</span>
-                <span className="text-xs sm:text-sm font-bold text-slate-900">{dest.bestSeason.split('(')[0]}</span>
+                <span className="text-xs sm:text-sm font-bold text-slate-900">{(dest.bestSeason || 'সারা বছর').split('(')[0]}</span>
               </div>
             </div>
 
@@ -169,7 +187,7 @@ export default function DestinationDetailsPage() {
               </span>
               <div>
                 <span className="text-[11px] text-slate-400 block font-medium">গড় ট্যুর খরচ</span>
-                <span className="text-xs sm:text-sm font-bold text-emerald-800 font-mono">{dest.avgCost} / জন</span>
+                <span className="text-xs sm:text-sm font-bold text-emerald-800 font-mono">{dest.avgCost || '৳৪,৫০০'} / জন</span>
               </div>
             </div>
 
@@ -179,7 +197,7 @@ export default function DestinationDetailsPage() {
               </span>
               <div>
                 <span className="text-[11px] text-slate-400 block font-medium">প্রবেশ ফি / পারমিট</span>
-                <span className="text-xs sm:text-sm font-bold text-slate-900">{dest.entryFee}</span>
+                <span className="text-xs sm:text-sm font-bold text-slate-900">{dest.entryFee || 'বিনামূল্যে'}</span>
               </div>
             </div>
           </div>
@@ -237,7 +255,7 @@ export default function DestinationDetailsPage() {
                     <span>এই উপজেলা ও অঞ্চলের প্রধান দর্শনীয় আকর্ষণসমূহ</span>
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {dest.highlights.map((h, i) => (
+                    {(dest.highlights || []).map((h, i) => (
                       <div
                         key={i}
                         className="flex items-start gap-2.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-100"
@@ -298,7 +316,7 @@ export default function DestinationDetailsPage() {
                 </h3>
 
                 <div className="space-y-4">
-                  {dest.howToGo.map((step, idx) => (
+                  {(dest.howToGo || []).map((step, idx) => (
                     <div
                       key={idx}
                       className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100"
@@ -324,7 +342,7 @@ export default function DestinationDetailsPage() {
                     <span>হোটেল, কটেজ ও থাকার ব্যবস্থা</span>
                   </h3>
                   <div className="space-y-2.5">
-                    {dest.whereToStay.map((stay, idx) => (
+                    {(dest.whereToStay || []).map((stay, idx) => (
                       <div key={idx} className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs sm:text-sm text-slate-700 font-medium">
                         <span className="material-symbols-outlined text-emerald-600 text-base">check</span>
                         <span>{stay}</span>
@@ -339,7 +357,7 @@ export default function DestinationDetailsPage() {
                     <span>স্থানীয় বিখ্যাত খাবার ও স্পেশালিটি</span>
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {dest.foodSpecialty.map((food, idx) => (
+                    {(dest.foodSpecialty || []).map((food, idx) => (
                       <div key={idx} className="p-3.5 rounded-xl bg-orange-50/60 border border-orange-100 text-xs sm:text-sm text-orange-950 font-semibold flex items-center gap-2">
                         <span className="material-symbols-outlined text-orange-500 text-lg">local_dining</span>
                         <span>{food}</span>
@@ -358,7 +376,7 @@ export default function DestinationDetailsPage() {
                   <span>ভ্রমণকারীদের জন্য প্রয়োজনীয় পরামর্শ ও সতর্কতা</span>
                 </h3>
                 <div className="space-y-3">
-                  {dest.tips.map((tip, idx) => (
+                  {(dest.tips || []).map((tip, idx) => (
                     <div key={idx} className="flex items-start gap-3 p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 text-xs sm:text-sm text-amber-950">
                       <span className="material-symbols-outlined text-amber-600 text-lg shrink-0 mt-0.5">warning</span>
                       <p className="font-medium leading-relaxed">{tip}</p>
@@ -386,11 +404,11 @@ export default function DestinationDetailsPage() {
                 </div>
                 <div className="flex justify-between">
                   <span>সক্রিয় ট্যুর:</span>
-                  <span className="font-bold text-amber-400">{dest.activeTours} টি রানিং ট্যুর</span>
+                  <span className="font-bold text-amber-400">{dest.activeTours || 4} টি রানিং ট্যুর</span>
                 </div>
                 <div className="flex justify-between">
                   <span>প্যাকেজ শুরু:</span>
-                  <span className="font-bold text-white font-mono">{dest.avgCost} হতে</span>
+                  <span className="font-bold text-white font-mono">{dest.avgCost || '৳৪,৫০০'} হতে</span>
                 </div>
               </div>
 
@@ -398,7 +416,7 @@ export default function DestinationDetailsPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    navigate(`/tours/${dest.relatedTourId}`);
+                    navigate(`/tours/${dest.relatedTourId || 'sajek-1'}`);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   className="w-full py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-xs sm:text-sm shadow-lg transition-transform hover:scale-[1.02] flex items-center justify-center gap-1.5 cursor-pointer"
