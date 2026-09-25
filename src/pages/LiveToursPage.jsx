@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const allLiveTours = [
   {
@@ -11,6 +11,10 @@ const allLiveTours = [
     startDate: '২৮ অক্টোবর ২০২৬',
     duration: '৩ রাত ২ দিন',
     operator: 'ঘুরি বাংলাদেশ',
+    coHost: 'সবুজ পথিক ট্রাভেলার্স',
+    isJointTour: true,
+    tourType: 'combine',
+    partnerGroups: ['ঘুরি বাংলাদেশ', 'সবুজ পথিক ট্রাভেলার্স'],
     operatorRating: 4.9,
     operatorTrips: 184,
     price: 4800,
@@ -19,7 +23,7 @@ const allLiveTours = [
     seatsBooked: 32,
     remainingSeats: 8,
     busType: 'হিনো ১জে এসি লাক্সারি চেয়ার কোচ',
-    tag: 'লাইভ জয়েন্ট ট্যুর',
+    tag: '🤝 মাল্টি-গ্রুপ জয়েন্ট ট্যুর',
     tagColor: '#EF7F45',
     image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
     features: ['এসি বাস', 'কাঠের কটেজ', 'ব্যাম্বু চিকেন', 'রিজার্ভ চান্দের গাড়ি'],
@@ -147,6 +151,8 @@ const categoryTabs = [
 
 export default function LiveToursPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const groupFilter = searchParams.get('group');
   const [selectedTab, setSelectedTab] = useState('all');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [sortBy, setSortBy] = useState('default');
@@ -154,6 +160,19 @@ export default function LiveToursPage() {
   const filteredTours = useMemo(() => {
     return allLiveTours
       .filter((tour) => {
+        if (groupFilter) {
+          const groupNameMap = {
+            'ghuri-bd': 'ঘুরি বাংলাদেশ',
+            'sobuj-pathik': 'সবুজ পথিক',
+          };
+          const target = groupNameMap[groupFilter] || groupFilter;
+          const matchOperator = tour.operator.toLowerCase().includes(target.toLowerCase());
+          const matchPartner = Array.isArray(tour.partnerGroups) && tour.partnerGroups.some((p) => p.toLowerCase().includes(target.toLowerCase()));
+          const matchCoHost = tour.coHost && tour.coHost.toLowerCase().includes(target.toLowerCase());
+          if (!matchOperator && !matchPartner && !matchCoHost) {
+            return false;
+          }
+        }
         const matchesTab = selectedTab === 'all' || tour.destination === selectedTab;
         const matchesSearch =
           searchKeyword.trim() === '' ||
@@ -169,7 +188,7 @@ export default function LiveToursPage() {
         if (sortBy === 'seats-left') return a.remainingSeats - b.remainingSeats;
         return 0;
       });
-  }, [selectedTab, searchKeyword, sortBy]);
+  }, [selectedTab, searchKeyword, sortBy, groupFilter]);
 
   return (
     <div className="w-full min-h-screen bg-slate-50 pt-20 pb-16">
@@ -263,6 +282,30 @@ export default function LiveToursPage() {
           </div>
         </div>
       </section>
+
+      {/* Active Group Filter Banner if present */}
+      {groupFilter && (
+        <section className="max-w-[1360px] mx-auto px-4 sm:px-8 mt-6">
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-3 text-xs text-emerald-950 shadow-xs">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-emerald-700 text-lg">verified</span>
+              <span>
+                <strong>{groupFilter === 'sobuj-pathik' ? 'সবুজ পথিক ট্রাভেলার্স' : (groupFilter === 'ghuri-bd' ? 'ঘুরি বাংলাদেশ' : groupFilter)}</strong>-এর অধীনে পরিচালিত ও কো-হোস্টেড জয়েন্ট ট্যুরসমূহ প্রদর্শন করা হচ্ছে।
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                searchParams.delete('group');
+                setSearchParams(searchParams);
+              }}
+              className="text-emerald-800 font-bold hover:underline shrink-0 cursor-pointer"
+            >
+              সকল গ্রুপ দেখুন
+            </button>
+          </div>
+        </section>
+      )}
 
       {/* Main Tour Grid */}
       <section className="max-w-[1360px] mx-auto px-4 sm:px-8 mt-8">
@@ -415,7 +458,8 @@ export default function LiveToursPage() {
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/tours/${tour.id}`);
+                        const queryParam = groupFilter ? `?group=${groupFilter}` : '';
+                        navigate(`/tours/${tour.id}${queryParam}`);
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       }}
                       className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white text-xs font-bold shadow-md hover:shadow-emerald-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-1 cursor-pointer"

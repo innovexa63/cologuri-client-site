@@ -350,7 +350,8 @@ export default function TourGroupsPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    navigate('/live-tours');
+                    const groupSlug = group.id === 'g1' ? 'ghuri-bd' : (group.id === 'g2' ? 'sobuj-pathik' : group.id);
+                    navigate(`/live-tours?group=${groupSlug}`);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
                   className="flex-1 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white text-xs font-bold hover:shadow-md transition-all flex items-center justify-center gap-1 cursor-pointer"
@@ -463,8 +464,9 @@ export default function TourGroupsPage() {
             <button
               type="button"
               onClick={() => {
+                const groupSlug = activeModalGroup.id === 'g1' ? 'ghuri-bd' : (activeModalGroup.id === 'g2' ? 'sobuj-pathik' : activeModalGroup.id);
                 setActiveModalGroup(null);
-                navigate('/live-tours');
+                navigate(`/live-tours?group=${groupSlug}`);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               className="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-md transition-colors cursor-pointer"

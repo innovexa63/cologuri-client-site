@@ -1,263 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const destinationsData = [
-  {
-    id: 'sajek',
-    name: 'সাজেক ভ্যালি — মেঘের রাজ্য',
-    division: 'চট্টগ্রাম',
-    district: 'রাঙামাটি',
-    upazila: 'বাঘাইছড়ি',
-    category: 'পাহাড় ও মেঘ',
-    altitude: '১,৮০০ ফুট',
-    bestSeason: 'অক্টোবর — মার্চ',
-    rating: 4.9,
-    reviews: 850,
-    activeTours: 8,
-    avgCost: '৳৪,৮০০',
-    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
-    description: 'রুইলুই পাড়া ও কংলাক পাহাড় থেকে ভাসমান মেঘমালার অপূর্ব দৃশ্য। রাতে পাহাড়ি কাঠের কটেজে বসে আকাশের কোটি তারার মেলা দেখার এক স্বর্গীয় অনুভূতি।',
-    highlights: ['কংলাক পাহাড় সামিট', 'রুইলুই পাড়া', 'সানসেট হেলিপ্যাড', 'ব্যাম্বু চিকেন'],
-  },
-  {
-    id: 'coxsbazar',
-    name: 'কক্সবাজার সমুদ্র সৈকত ও হিমছড়ি',
-    division: 'চট্টগ্রাম',
-    district: 'কক্সবাজার',
-    upazila: 'কক্সবাজার সদর',
-    category: 'সমুদ্র সৈকত',
-    altitude: 'সমুদ্রপৃষ্ঠ',
-    bestSeason: 'নভেম্বর — এপ্রিল',
-    rating: 4.8,
-    reviews: 1420,
-    activeTours: 12,
-    avgCost: '৳৪,২০০',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
-    description: 'পৃথিবীর দীর্ঘতম ১২০ কিলোমিটারের প্রাকৃতিক বালুকাময় সমুদ্র সৈকত। খোলা জিপে মেরিন ড্রাইভ রোড ধরে রোমাঞ্চকর রাইড এবং হিমছড়ি পাহাড়ের সবুজ রূপ।',
-    highlights: ['লাবণী বিচ সানসেট', 'হিমছড়ি ঝর্ণা ও পাহাড়', 'সি-ফুড ডাইনিং', 'বার্মিজ মার্কেট'],
-  },
-  {
-    id: 'inani',
-    name: 'ইনানী কোরাল বিচ ও মেরিন ড্রাইভ',
-    division: 'চট্টগ্রাম',
-    district: 'কক্সবাজার',
-    upazila: 'উখিয়া',
-    category: 'সমুদ্র সৈকত',
-    altitude: 'সমুদ্রপৃষ্ঠ',
-    bestSeason: 'নভেম্বর — এপ্রিল',
-    rating: 4.8,
-    reviews: 790,
-    activeTours: 9,
-    avgCost: '৳৪,৫০০',
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
-    description: 'প্রবাল পাথরে ঘেরা শান্ত ও নীল জলরাশির সৈকত। পাথরের ওপর আছড়ে পড়া ঢেউ আর সূর্যাস্তের অসাধারণ রঙে মন জুড়িয়ে যায়।',
-    highlights: ['প্রবাল পাথরের খাঁজ', 'খোলা জিপে মেরিন ড্রাইভ', 'পাটুয়ারটেক পাথুরে সৈকত'],
-  },
-  {
-    id: 'saintmartin',
-    name: 'সেন্টমার্টিন ও ছেঁড়াদ্বীপ প্রবাল দ্বীপ',
-    division: 'চট্টগ্রাম',
-    district: 'কক্সবাজার',
-    upazila: 'টেকনাফ',
-    category: 'সমুদ্র সৈকত',
-    altitude: 'প্রবাল দ্বীপ',
-    bestSeason: 'নভেম্বর — ফেব্রুয়ারি',
-    rating: 4.9,
-    reviews: 1200,
-    activeTours: 6,
-    avgCost: '৳৭,২০০',
-    image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80',
-    description: 'বাংলাদেশের একমাত্র প্রবাল দ্বীপ। স্বচ্ছ নীলাভ সমুদ্র, নারিকেল কুঞ্জ, জোয়ার-ভাটায় জেগে ওঠা ছেঁড়াদ্বীপ আর জাহাজে গাঙচিলের ওড়াউড়ি।',
-    highlights: ['ছেঁড়াদ্বীপ কোরাল রিফ', 'জাহাজে গাঙচিল দর্শন', 'তাজা ডাবের পানি ও মাছ ফ্রাই', 'বিচ সাইক্লিং'],
-  },
-  {
-    id: 'keokradong',
-    name: 'কেওক্রাডং সামিট ও বগালেক',
-    division: 'চট্টগ্রাম',
-    district: 'বান্দরবান',
-    upazila: 'রুমা',
-    category: 'পাহাড় ও মেঘ',
-    altitude: '৩,১৭২ ফুট',
-    bestSeason: 'অক্টোবর — মার্চ',
-    rating: 4.9,
-    reviews: 740,
-    activeTours: 9,
-    avgCost: '৳৫,৪০০',
-    image: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
-    description: 'পাহাড় ও রোমাঞ্চপ্রিয়দের সেরা পছন্দ। রহস্যময় নীল জলরাশির বগালেক, পাহাড়ি আদিবাসী পাড়া এবং কেওক্রাডং চূড়া জয়ের দুর্লভ আনন্দ।',
-    highlights: ['কেওক্রাডং সামিট', 'রহস্যময় বগালেক', 'দার্জিলিং পাড়া', 'বোম আদিবাসী খাবার'],
-  },
-  {
-    id: 'nilgiri',
-    name: 'নীলগিরি রিসোর্ট ও নীলাচল',
-    division: 'চট্টগ্রাম',
-    district: 'বান্দরবান',
-    upazila: 'বান্দরবান সদর',
-    category: 'পাহাড় ও মেঘ',
-    altitude: '২,২০০ ফুট',
-    bestSeason: 'সারা বছর',
-    rating: 4.8,
-    reviews: 910,
-    activeTours: 7,
-    avgCost: '৳৪,৮০০',
-    image: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80',
-    description: 'পাহাড়ের শীর্ষের মেঘের স্পর্শ। মেঘলার ঝুলন্ত সেতু, স্বর্ণ মন্দির এবং নীলাচল থেকে পুরো বান্দরবানের সবুজ ল্যান্ডস্কেপ দেখার অভিজ্ঞতা।',
-    highlights: ['নীলগিরি ক্লাউড পয়েন্ট', 'নীলাচল সানসেট', 'স্বর্ণ মন্দির', 'মেঘলা লেক'],
-  },
-  {
-    id: 'tanguar',
-    name: 'টাঙ্গুয়ার হাওর ও নীলাদ্রি লেক',
-    division: 'সিলেট',
-    district: 'সুনামগঞ্জ',
-    upazila: 'তাহিরপুর',
-    category: 'হাওর ও জলপ্রপাত',
-    altitude: 'রামসার জলাভূমি',
-    bestSeason: 'জুলাই — সেপ্টেম্বর ও শীত',
-    rating: 4.8,
-    reviews: 510,
-    activeTours: 5,
-    avgCost: '৳৬,৮০০',
-    image: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=800&q=80',
-    description: 'মেঘালয় পাহাড়ের পাদদেশে বিশাল জলরাশি। ঐতিহ্যবাহী কাঠের হাউসবোটে রাতযাপন, পরিষ্কার নীল পানির নীলাদ্রি লেক এবং বাউল গানের আসর।',
-    highlights: ['লাক্সারি হাউসবোট স্টে', 'নীলাদ্রি লেক (শহীদ সিরাজ লেক)', 'ওয়াচ টাওয়ার পাখি দর্শন'],
-  },
-  {
-    id: 'jadukata',
-    name: 'যাদুকাটা নদী ও শিমুল বাগান',
-    division: 'সিলেট',
-    district: 'সুনামগঞ্জ',
-    upazila: 'তাহিরপুর',
-    category: 'হাওর ও জলপ্রপাত',
-    altitude: 'পাহাড় ও নদী',
-    bestSeason: 'ফেব্রুয়ারি — মার্চ ও বর্ষা',
-    rating: 4.8,
-    reviews: 440,
-    activeTours: 4,
-    avgCost: '৳৫,২০০',
-    image: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&q=80',
-    description: 'বসন্তে রক্তিম লাল শিমুল ফুলের মেলা আর ভারতের মেঘালয় পাহাড়ের বুক চিড়ে বয়ে আসা স্বচ্ছ বালিময় যাদুকাটা নদীর অপরূপ দৃশ্য।',
-    highlights: ['জৈনাল আবেদীন শিমুল বাগান', 'যাদুকাটা নদীর স্বচ্ছ পানি', 'বারেকের টিলা ভিউপয়েন্ট'],
-  },
-  {
-    id: 'sreemangal',
-    name: 'শ্রীমঙ্গল চা-বাগান ও লাউয়াছড়া',
-    division: 'সিলেট',
-    district: 'মৌলভীবাজার',
-    upazila: 'শ্রীমঙ্গল',
-    category: 'চা-বাগান',
-    altitude: 'সবুজ উপত্যকা',
-    bestSeason: 'সারা বছর উপযুক্ত',
-    rating: 4.7,
-    reviews: 480,
-    activeTours: 7,
-    avgCost: '৳৩,৬০০',
-    image: 'https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=800&q=80',
-    description: 'দুটি পাতা একটি কুঁড়ির সবুজ শ্যামলিমায় ঘেরা চায়ের রাজধানী। লাউয়াছড়া জাতীয় উদ্যানের ছায়াঘন ট্রেইল, বিরল উল্লুক ও নীলকণ্ঠের ৭ রঙের চা।',
-    highlights: ['ফিনলে চা-বাগান', 'লাউয়াছড়া রেইনফরেস্ট', 'নীলকণ্ঠ ৭ রঙের চা', 'মাধবপুর লেক'],
-  },
-  {
-    id: 'madhabkunda',
-    name: 'মাধবকুণ্ড জলপ্রপাত ও ইকোপার্ক',
-    division: 'সিলেট',
-    district: 'মৌলভীবাজার',
-    upazila: 'বড়লেখা',
-    category: 'হাওর ও জলপ্রপাত',
-    altitude: '২০০ ফুট ঝর্ণা',
-    bestSeason: 'বর্ষা ও শরৎ',
-    rating: 4.6,
-    reviews: 390,
-    activeTours: 4,
-    avgCost: '৳৩,৮০০',
-    image: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?w=800&q=80',
-    description: 'বাংলাদেশের অন্যতম বৃহৎ প্রাকৃতিক জলপ্রপাত। প্রায় ২০০ ফুট উঁচু পাহাড় থেকে অবিরাম ধারায় ঝরে পড়া জলপ্রপাতের গর্জন ও চা বাগানের নিবিড় পরিবেশ।',
-    highlights: ['মাধবকুণ্ড ঝর্ণা', 'পাহাড়ি ইকোপার্ক ট্রেইল', 'হাকালুকি হাওর সাইটসিয়িং'],
-  },
-  {
-    id: 'ratargul',
-    name: 'রাতারগুল সোয়াম্প ফরেস্ট ও বিছনাকান্দি',
-    division: 'সিলেট',
-    district: 'সিলেট',
-    upazila: 'গোয়াইনঘাট',
-    category: 'ম্যানগ্রোভ ও বন',
-    altitude: 'মিঠাপানির জলাবন',
-    bestSeason: 'জুলাই — অক্টোবর',
-    rating: 4.8,
-    reviews: 670,
-    activeTours: 6,
-    avgCost: '৳৪,৫০০',
-    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
-    description: 'বাংলার আমাজন খ্যাত মিঠাপানির জলাবন রাতারগুল। ডিঙি নৌকায় গাছের ডালপালার নিচ দিয়ে ঘুরে বেড়ানো এবং বিছনাকান্দির পাথুরে পাহাড়ি জলপ্রপাত।',
-    highlights: ['রাতারগুল জলাবনে নৌকা ভ্রমণ', 'বিছনাকান্দি পাথুরে নদী', 'পান্তুমাই ঝর্ণা ভিউ'],
-  },
-  {
-    id: 'sundarban-east',
-    name: 'সুন্দরবন ম্যানগ্রোভ, কটকা ও জামতলা',
-    division: 'খুলনা',
-    district: 'বাগেরহাট',
-    upazila: 'মোংলা ও শরণখোলা',
-    category: 'ম্যানগ্রোভ ও বন',
-    altitude: 'জোয়ার-ভাটার বন',
-    bestSeason: 'নভেম্বর — ফেব্রুয়ারি',
-    rating: 4.9,
-    reviews: 620,
-    activeTours: 6,
-    avgCost: '৳৮,৯০০',
-    image: 'https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80',
-    description: 'UNESCO বিশ্ব ঐতিহ্য এবং পৃথিবীর বৃহত্তম ম্যানগ্রোভ বন। হরিণ, কুমির, ডলফিন এবং রয়েল বেঙ্গল টাইগারের বিশ্বখ্যাত প্রাকৃতিক আবাসস্থল।',
-    highlights: ['কটকা জামতলা সি-বিচ', 'হিরণ পয়েন্ট ওয়াচটাওয়ার', 'সশস্ত্র বনরক্ষী ট্রেইল', 'ক্যানাল ক্রুজিং'],
-  },
-  {
-    id: 'sundarban-west',
-    name: 'সুন্দরবন কলাগাছিয়া ও শ্যামনগর ইকো ট্যুর',
-    division: 'খুলনা',
-    district: 'সাতক্ষীরা',
-    upazila: 'শ্যামনগর',
-    category: 'ম্যানগ্রোভ ও বন',
-    altitude: 'ম্যানগ্রোভ ইকো-জোন',
-    bestSeason: 'নভেম্বর — মার্চ',
-    rating: 4.7,
-    reviews: 350,
-    activeTours: 4,
-    avgCost: '৳৫,৫০০',
-    image: 'https://images.unsplash.com/photo-1624811532702-fc35e8f9b9ff?w=800&q=80',
-    description: 'পশ্চিম সুন্দরবনের কলাগাছিয়া ইকো-ট্যুরিজম কেন্দ্র। বানর, হরিণ ও ওয়াচ টাওয়ার থেকে বনের সবুজ চাদর দেখার সুযোগ।',
-    highlights: ['কলাগাছিয়া ট্রেইল', 'ম্যানগ্রোভ ফরেস্ট ওয়াক', 'মধুর চাকা পরিদর্শন'],
-  },
-  {
-    id: 'kuakata',
-    name: 'কুয়াকাটা সূর্যোদয়-সূর্যাস্ত সৈকত ও লেম্বুর চর',
-    division: 'বরিশাল',
-    district: 'পটুয়াখালী',
-    upazila: 'কলাপাড়া',
-    category: 'সমুদ্র সৈকত',
-    altitude: 'সমুদ্র সৈকত',
-    bestSeason: 'নভেম্বর — মার্চ',
-    rating: 4.7,
-    reviews: 430,
-    activeTours: 4,
-    avgCost: '৳৪,৫০০',
-    image: 'https://images.unsplash.com/photo-1510312305653-8ed496efae75?w=800&q=80',
-    description: 'একই সৈকতে দাঁড়িয়ে সূর্যোদয় ও সূর্যাস্ত দেখার দুর্লভ প্রাকৃতিক লীলাভূমি। লেম্বুর চরের ম্যানগ্রোভ বন, শুঁটকি পল্লী ও রাখাইন মহিলা মার্কেট।',
-    highlights: ['সূর্যোদয় ও সূর্যাস্ত ভিউ', 'লেম্বুর চর বন', 'রাখাইন পল্লী ও প্রাচীন কুয়া', 'ঝাউবন'],
-  },
-  {
-    id: 'nikli',
-    name: 'নিকলী হাওর ও অল-ওয়েদার সড়ক',
-    division: 'ঢাকা',
-    district: 'কিশোরগঞ্জ',
-    upazila: 'নিকলী',
-    category: 'হাওর ও জলপ্রপাত',
-    altitude: 'হাওর অঞ্চল',
-    bestSeason: 'জুলাই — অক্টোবর',
-    rating: 4.7,
-    reviews: 580,
-    activeTours: 5,
-    avgCost: '৳২,২০০',
-    image: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=800&q=80',
-    description: 'বর্ষায় চারদিকে অথৈ জলরাশি আর মাঝখান দিয়ে চলে যাওয়া সোজা অল-ওয়েদার সড়ক। কাঠের নৌকায় চড়ে হাওরের বুকে সূর্যাস্ত দেখার মনোরম ট্রিপ।',
-    highlights: ['নিকলী হাওরে নৌকা ভ্রমণ', 'অল-ওয়েদার সড়ক রাইড', 'মিঠামইন-ইটনা ভিউ', 'তাজা হাওরের মাছ'],
-  },
-];
+import { allDestinations } from '../data/destinationsData';
+
 
 export default function DestinationsPage() {
   const navigate = useNavigate();
@@ -271,22 +16,27 @@ export default function DestinationsPage() {
 
   // Extract unique Divisions
   const divisions = useMemo(() => {
-    const list = [...new Set(destinationsData.map((d) => d.division))];
-    return list;
+
+    return [...new Set(allDestinations.map((d) => d.division))];
+
   }, []);
 
   // Extract unique Districts based on selected Division
   const availableDistricts = useMemo(() => {
     const filtered =
       selectedDivision === 'all'
-        ? destinationsData
-        : destinationsData.filter((d) => d.division === selectedDivision);
+
+        ? allDestinations
+        : allDestinations.filter((d) => d.division === selectedDivision);
+
     return [...new Set(filtered.map((d) => d.district))];
   }, [selectedDivision]);
 
   // Extract unique Upazilas based on selected District
   const availableUpazilas = useMemo(() => {
-    const filtered = destinationsData.filter((d) => {
+
+    const filtered = allDestinations.filter((d) => {
+
       const matchDiv = selectedDivision === 'all' || d.division === selectedDivision;
       const matchDist = selectedDistrict === 'all' || d.district === selectedDistrict;
       return matchDiv && matchDist;
@@ -315,7 +65,9 @@ export default function DestinationsPage() {
 
   // Filtered Destinations
   const filteredDestinations = useMemo(() => {
-    return destinationsData.filter((d) => {
+
+    return allDestinations.filter((d) => {
+
       const matchDiv = selectedDivision === 'all' || d.division === selectedDivision;
       const matchDist = selectedDistrict === 'all' || d.district === selectedDistrict;
       const matchUp = selectedUpazila === 'all' || d.upazila === selectedUpazila;
@@ -325,12 +77,16 @@ export default function DestinationsPage() {
         d.division.toLowerCase().includes(searchQuery.toLowerCase()) ||
         d.district.toLowerCase().includes(searchQuery.toLowerCase()) ||
         d.upazila.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        d.highlights.some((h) => h.toLowerCase().includes(searchQuery.toLowerCase()));
+
+        (d.highlights && d.highlights.some((h) => h.toLowerCase().includes(searchQuery.toLowerCase())));
+
       return matchDiv && matchDist && matchUp && matchSearch;
     });
   }, [selectedDivision, selectedDistrict, selectedUpazila, searchQuery]);
 
-  // Grouped by Division -> District
+
+  // Grouped by Division -> District -> Upazila
+
   const groupedData = useMemo(() => {
     const groups = {};
     filteredDestinations.forEach((item) => {
@@ -338,12 +94,24 @@ export default function DestinationsPage() {
         groups[item.division] = {};
       }
       if (!groups[item.division][item.district]) {
-        groups[item.division][item.district] = [];
+
+        groups[item.division][item.district] = {};
       }
-      groups[item.division][item.district].push(item);
+      if (!groups[item.division][item.district][item.upazila]) {
+        groups[item.division][item.district][item.upazila] = [];
+      }
+      groups[item.division][item.district][item.upazila].push(item);
+
     });
     return groups;
   }, [filteredDestinations]);
+
+
+  const handleCardClick = (destId) => {
+    navigate(`/destinations/${destId}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
 
   return (
     <div className="w-full min-h-screen bg-slate-50 pt-20 pb-16">
@@ -353,13 +121,17 @@ export default function DestinationsPage() {
         <div className="max-w-[1360px] mx-auto relative z-10 text-center sm:text-left">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-semibold mb-3">
             <span className="material-symbols-outlined text-sm">hub</span>
-            <span>প্রশাসনিক শ্রেণিবিন্যাস: বিভাগ ❯ জেলা ❯ উপজেলা</span>
+
+            <span>প্রশাসনিক শ্রেণিবিন্যাস: বিভাগ ❯ জেলা ❯ উপজেলা ভিত্তিক ভ্রমণ</span>
+
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold font-serif tracking-tight text-white mb-3">
             বাংলাদেশের দর্শনীয় স্থানসমূহ
           </h1>
           <p className="text-emerald-100/90 text-sm sm:text-base max-w-2xl leading-relaxed">
-            বিভাগ, জেলা এবং উপজেলা অনুযায়ী সাজানো দেশের সেরা ভ্রমণ স্পটগুলো খুঁজে নিন। আপনার কাঙ্ক্ষিত এলাকার পর্যটন সম্ভাবনা ও রানিং ট্যুর এক নজরে দেখুন।
+
+            বিভাগ, জেলা এবং উপজেলা অনুযায়ী প্রতিটি অঞ্চলের বিখ্যাত দর্শনীয় স্থানসমূহ কার্ড আকারে সাজানো। যে কোনো কার্ডে ক্লিক করে সেই স্থানের বিস্তারিত ইতিহাস, ছবি ও ভ্রমণ নির্দেশিকা দেখুন।
+
           </p>
         </div>
       </section>
@@ -379,7 +151,9 @@ export default function DestinationsPage() {
                   ফিল্টার করুন (বিভাগ ❯ জেলা ❯ উপজেলা)
                 </h3>
                 <span className="text-xs text-slate-500">
-                  নির্দিষ্ট প্রশাসনিক এলাকা নির্বাচন করে স্থানসমূহ ফিল্টার করুন
+
+                  উপজেলা ফিল্টার করলে সেই উপজেলার সমস্ত দর্শনীয় স্থান কার্ড গ্রিডে প্রদর্শিত হবে
+
                 </span>
               </div>
             </div>
@@ -396,7 +170,7 @@ export default function DestinationsPage() {
                 }`}
               >
                 <span className="material-symbols-outlined text-[16px]">account_tree</span>
-                <span>বিভাগভিত্তিক দলবদ্ধ</span>
+                <span>বিভাগ ও উপজেলা ভিত্তিক সাজানো</span>
               </button>
               <button
                 type="button"
@@ -408,7 +182,9 @@ export default function DestinationsPage() {
                 }`}
               >
                 <span className="material-symbols-outlined text-[16px]">grid_view</span>
-                <span>সকল গ্রিড ভিউ</span>
+
+                <span>সকল কার্ড গ্রিড</span>
+
               </button>
             </div>
           </div>
@@ -547,14 +323,21 @@ export default function DestinationsPage() {
           <div className="flex items-center gap-2 text-sm text-slate-600 font-medium">
             <span>ফলাফল:</span>
             <span className="font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-100">
-              {filteredDestinations.length} টি দর্শনীয় স্থান
+
+              {filteredDestinations.length} টি দর্শনীয় স্থান পাওয়া গেছে
             </span>
             {selectedDivision !== 'all' && (
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-slate-500 hidden sm:inline">
+
                 • {selectedDivision} বিভাগ {selectedDistrict !== 'all' && `❯ ${selectedDistrict} জেলা`} {selectedUpazila !== 'all' && `❯ ${selectedUpazila} উপজেলা`}
               </span>
             )}
           </div>
+
+          <span className="text-xs text-emerald-700 font-semibold">
+            💡 যে কোনো কার্ডে ক্লিক করে সম্পূর্ণ ছবি ও ইতিহাস দেখুন
+          </span>
+
         </div>
 
         {filteredDestinations.length === 0 ? (
@@ -596,37 +379,61 @@ export default function DestinationsPage() {
                   </div>
 
                   <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">
-                    {Object.values(districtsObj).flat().length} টি স্থান
+
+                    {Object.values(districtsObj).flatMap((u) => Object.values(u)).flat().length} টি স্থান
+
                   </span>
                 </div>
 
                 {/* Districts and Upazilas inside this Division */}
                 <div className="space-y-8">
-                  {Object.entries(districtsObj).map(([districtName, items]) => (
+
+                  {Object.entries(districtsObj).map(([districtName, upazilasObj]) => (
                     <div key={districtName} className="pl-0 sm:pl-3 border-l-0 sm:border-l-2 border-emerald-500/30">
                       
-                      {/* District Label */}
+                      {/* District Header */}
+
                       <div className="flex items-center gap-2 mb-4">
                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                         <h3 className="text-base sm:text-lg font-bold text-slate-800 font-serif">
                           {districtName} জেলা
                         </h3>
                         <span className="text-xs text-slate-400 font-normal">
-                          ({items.length} টি স্থান)
+
+                          ({Object.values(upazilasObj).flat().length} টি স্থান)
                         </span>
                       </div>
 
-                      {/* Cards Grid */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {items.map((dest) => (
-                          <DestinationCard
-                            key={dest.id}
-                            dest={dest}
-                            onExplore={() => {
-                              navigate('/live-tours');
-                              window.scrollTo({ top: 0, behavior: 'smooth' });
-                            }}
-                          />
+                      {/* Upazilas Loop */}
+                      <div className="space-y-6">
+                        {Object.entries(upazilasObj).map(([upazilaName, items]) => (
+                          <div key={upazilaName} className="bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-100">
+                            
+                            {/* Upazila Badge / Title */}
+                            <div className="flex items-center justify-between mb-4 pb-2 border-b border-slate-200/60">
+                              <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-emerald-700 text-base">pin_drop</span>
+                                <span className="font-bold text-sm text-slate-900 font-serif">
+                                  {upazilaName} উপজেলা
+                                </span>
+                              </div>
+                              <span className="text-xs text-emerald-700 font-semibold bg-emerald-100/70 px-2 py-0.5 rounded-md">
+                                {items.length} টি দর্শনীয় স্থান
+                              </span>
+                            </div>
+
+                            {/* Cards Grid for this Upazila */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                              {items.map((dest) => (
+                                <DestinationCard
+                                  key={dest.id}
+                                  dest={dest}
+                                  onClick={() => handleCardClick(dest.id)}
+                                />
+                              ))}
+                            </div>
+                          </div>
+
                         ))}
                       </div>
                     </div>
@@ -644,10 +451,7 @@ export default function DestinationsPage() {
               <DestinationCard
                 key={dest.id}
                 dest={dest}
-                onExplore={() => {
-                  navigate('/live-tours');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
+                onClick={() => handleCardClick(dest.id)}
               />
             ))}
           </div>
@@ -657,10 +461,15 @@ export default function DestinationsPage() {
   );
 }
 
-// Subcomponent: Reusable Destination Card with Full Administrative Hierarchy Breadcrumb
-function DestinationCard({ dest, onExplore }) {
+// Subcomponent: Reusable Destination Card with Hierarchy and Click Handler
+function DestinationCard({ dest, onClick }) {
+  const navigate = useNavigate();
+
   return (
-    <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between group">
+    <div
+      onClick={onClick}
+      className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between group cursor-pointer"
+    >
       <div>
         {/* Cover Image */}
         <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-900">
@@ -686,7 +495,7 @@ function DestinationCard({ dest, onExplore }) {
             </span>
             <span className="flex items-center gap-1 font-medium">
               <span className="material-symbols-outlined text-[14px] text-emerald-400">sunny</span>
-              {dest.bestSeason}
+              {dest.bestSeason ? dest.bestSeason.split('(')[0] : ''}
             </span>
           </div>
         </div>
@@ -721,7 +530,7 @@ function DestinationCard({ dest, onExplore }) {
 
           {/* Highlights Chips */}
           <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-100">
-            {dest.highlights.slice(0, 3).map((h, idx) => (
+            {dest.highlights && dest.highlights.slice(0, 3).map((h, idx) => (
               <span
                 key={idx}
                 className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-medium"
@@ -741,14 +550,20 @@ function DestinationCard({ dest, onExplore }) {
           <span className="text-[10px] text-slate-400 ml-0.5">/জন</span>
         </div>
 
-        <button
-          type="button"
-          onClick={onExplore}
-          className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white text-xs font-bold hover:shadow-md transition-all flex items-center gap-1 cursor-pointer"
-        >
-          <span>ট্যুর দেখুন</span>
-          <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/destinations/${dest.id}`);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white text-xs font-bold hover:shadow-md transition-all flex items-center gap-1 cursor-pointer"
+          >
+            <span>বিস্তারিত ও ইতিহাস</span>
+            <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
+          </button>
+        </div>
       </div>
     </div>
   );

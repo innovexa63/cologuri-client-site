@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { getTourById } from '../../data/toursData';
 import { useStore } from '../../store/useStore';
 import { emitLockSeat, emitReleaseSeat } from '../../services/socket';
@@ -19,8 +20,70 @@ export default function TourDetailsPage({
   onNavigateHome,
 }) {
   const tour = useMemo(() => getTourById(tourId), [tourId]);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryGroup = searchParams.get('group');
+
   const lockedSeats = useStore((state) => state.lockedSeats);
   const lockedSeatsMap = lockedSeats[tourId] || EMPTY_SEATS;
+
+  // Partner groups for Combine Tour
+  const partnerGroups = useMemo(() => {
+    return tour.partnerGroups || (tour.isJointTour ? [
+      {
+        groupId: 'g1',
+        groupName: 'ঘুরি বাংলাদেশ',
+        groupSlug: 'ghuri-bd',
+        color: '#166B47',
+        allocatedSeats: [
+          'A1', 'A2', 'A3', 'A4',
+          'B1', 'B2', 'B3', 'B4',
+          'C1', 'C2', 'C3', 'C4',
+          'D1', 'D2', 'D3', 'D4',
+          'E1', 'E2', 'E3'
+        ],
+      },
+      {
+        groupId: 'g2',
+        groupName: 'সবুজ পথিক ট্রাভেলার্স',
+        groupSlug: 'sobuj-pathik',
+        color: '#C9622B',
+        allocatedSeats: [
+          'E4',
+          'F1', 'F2', 'F3', 'F4',
+          'G1', 'G2', 'G3', 'G4',
+          'H1', 'H2', 'H3', 'H4',
+          'I1', 'I2', 'I3', 'I4',
+          'J1', 'J2', 'J3', 'J4'
+        ],
+      },
+    ] : []);
+  }, [tour]);
+
+  const isCombineTour = Boolean(tour.isJointTour || tour.tourType === 'combine' || partnerGroups.length > 1);
+
+  // Active Group for branding and seat booking
+  const [activeGroupIndex, setActiveGroupIndex] = useState(() => {
+    if (queryGroup && partnerGroups.length > 0) {
+      const idx = partnerGroups.findIndex((p) => p.groupSlug === queryGroup || p.groupId === queryGroup);
+      return idx !== -1 ? idx : 0;
+    }
+    return 0;
+  });
+
+  const activeGroup = isCombineTour && partnerGroups.length > 0 ? partnerGroups[activeGroupIndex] : null;
+
+  // Sync if query param changes
+  useEffect(() => {
+    if (queryGroup && partnerGroups.length > 0) {
+      const idx = partnerGroups.findIndex((p) => p.groupSlug === queryGroup || p.groupId === queryGroup);
+      if (idx !== -1 && idx !== activeGroupIndex) {
+        setActiveGroupIndex(idx);
+        setSelectedSeats([]);
+      }
+    }
+  }, [queryGroup, partnerGroups]);
+
 
   // Seat booking state
   const [selectedSeats, setSelectedSeats] = useState([]);
@@ -44,8 +107,38 @@ export default function TourDetailsPage({
   const isFemale = (seatNo) => tour.busInfo.femaleSeats.includes(seatNo);
   const isSelected = (seatNo) => selectedSeats.includes(seatNo);
 
+  const getSeatOwner = (seatNo) => {
+    if (!isCombineTour) return null;
+    return partnerGroups.find((p) => (p.allocatedSeats || []).includes(seatNo)) || null;
+  };
+
+  const isMyGroupSeat = (seatNo) => {
+    if (!isCombineTour || !activeGroup) return true;
+    const owner = getSeatOwner(seatNo);
+    return owner ? owner.groupId === activeGroup.groupId : true;
+  };
+
+  const isSeatTransferred = (seatNo) => {
+    if (!tour.seatTransfers || !Array.isArray(tour.seatTransfers)) return false;
+    return tour.seatTransfers.some((t) => t.seatNo === seatNo || (Array.isArray(t.seatNumbers) && t.seatNumbers.includes(seatNo)));
+  };
+
   const toggleSeat = (seatNo) => {
     if (isBooked(seatNo) || isLockedByOther(seatNo)) return;
+
+    if (isCombineTour && !isMyGroupSeat(seatNo)) {
+      const owner = getSeatOwner(seatNo);
+      if (owner) {
+        const targetIdx = partnerGroups.findIndex((p) => p.groupId === owner.groupId);
+        if (targetIdx !== -1) {
+          setActiveGroupIndex(targetIdx);
+          setSelectedSeats([seatNo]);
+          setSearchParams({ group: owner.groupSlug || owner.groupId });
+          emitLockSeat(tourId, seatNo, passengerPhone || 'guest');
+        }
+      }
+      return;
+    }
 
     if (isSelected(seatNo)) {
       setSelectedSeats(selectedSeats.filter((s) => s !== seatNo));
@@ -139,7 +232,7 @@ export default function TourDetailsPage({
               <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-[#F0FDF8]">
                 <div className="flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-[18px] text-[#7FE5BA]">verified</span>
-                  <span>হোস্ট: <strong>{tour.operator}</strong></span>
+                  <span>হোস্ট: <strong>{activeGroup ? activeGroup.groupName : tour.operator}</strong></span>
                 </div>
                 <div className="flex items-center gap-1 text-amber-300">
                   <span className="material-symbols-outlined text-[18px] fill-current">star</span>
@@ -151,6 +244,16 @@ export default function TourDetailsPage({
                   <span>যাত্রা: {tour.startDate}</span>
                 </div>
               </div>
+
+              {isCombineTour && partnerGroups.length > 0 && (
+                <div className="inline-flex flex-wrap items-center gap-2 mt-3 py-1.5 px-3 rounded-xl bg-white/10 border border-white/20 text-xs backdrop-blur-md">
+                  <span className="font-bold text-amber-300">🤝 মাল্টি-গ্রুপ জয়েন্ট পার্টনারশিপ:</span>
+                  <span>{partnerGroups.map((p) => p.groupName).join(' × ')}</span>
+                  <span className="text-emerald-200 text-[11px] bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-400/20">
+                    বর্তমান বুকিং কাউন্টার: {activeGroup?.groupName}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-[#7FE5BA]/30 shrink-0 text-right">
@@ -274,50 +377,119 @@ export default function TourDetailsPage({
                 </div>
               </div>
 
-              {/* Seat Legend */}
-              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 p-4 rounded-2xl bg-[#F7FBF8] border border-[#CFE3D5] mb-8 text-xs font-semibold text-[#414844]">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-white border-2 border-[#168B5E] shadow-2xs" />
-                  <span>ফাঁকা সিট</span>
+              {/* Group Channel Switcher for Combine Tour */}
+              {isCombineTour && partnerGroups.length > 0 && (
+                <div className="mb-6 p-4 rounded-2xl bg-amber-50/70 border border-amber-200">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2.5">
+                    <div>
+                      <span className="text-xs font-bold text-amber-950 uppercase tracking-wider block">
+                        গ্রুপভিত্তিক বুকিং কোটা (Group Booking Channel)
+                      </span>
+                      <p className="text-[11px] text-amber-800/80">
+                        যে গ্রুপের জন্য যে সিট বরাদ্দ, কেবল সেই গ্রুপের চ্যানেলে সংশ্লিষ্ট সিট বুক করা যাবে।
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {partnerGroups.map((p, idx) => {
+                      const isCurrent = activeGroupIndex === idx;
+                      const myQuota = p.allocatedSeats || [];
+                      const bookedCount = myQuota.filter((s) => tour.busInfo.bookedSeats.includes(s)).length;
+                      const remaining = myQuota.length - bookedCount;
+
+                      return (
+                        <button
+                          key={p.groupId}
+                          type="button"
+                          onClick={() => {
+                            setActiveGroupIndex(idx);
+                            setSelectedSeats([]);
+                            setSearchParams({ group: p.groupSlug || p.groupId });
+                          }}
+                          className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                            isCurrent
+                              ? 'bg-[#03251A] text-white shadow-sm ring-2 ring-emerald-500/30'
+                              : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+                          }`}
+                        >
+                          <span className="w-3 h-3 rounded-full" style={{ backgroundColor: p.color }} />
+                          <span>{p.groupName}</span>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                            isCurrent ? 'bg-emerald-800 text-emerald-100' : 'bg-slate-100 text-slate-600'
+                          }`}>
+                            {remaining}টি সিট উন্মুক্ত
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-[#EF7F45] text-white flex items-center justify-center text-[11px] font-bold shadow-xs">
+              )}
+
+              {/* Seat Legend */}
+              <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 p-3.5 rounded-2xl bg-[#F7FBF8] border border-[#CFE3D5] mb-6 text-xs font-semibold text-[#414844]">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-5 h-5 rounded-lg bg-white border-2 border-[#168B5E] shadow-2xs" />
+                  <span>আপনার কোটা (খালি)</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-5 h-5 rounded-lg bg-[#EF7F45] text-white flex items-center justify-center text-[10px] font-bold shadow-xs">
                     ✓
                   </div>
                   <span className="text-[#C9622B] font-bold">নির্বাচিত</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-[#E2E8F0] border border-gray-300 flex items-center justify-center text-[10px] text-gray-500">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-5 h-5 rounded-lg bg-[#E2E8F0] border border-gray-300 flex items-center justify-center text-[9px] text-gray-500">
                     ✕
                   </div>
                   <span className="text-gray-500">বুকড</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-[#F5E8FF] border-2 border-[#9333EA] text-[#9333EA] flex items-center justify-center text-[11px]">
+                {isCombineTour && (
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-5 h-5 rounded-lg bg-slate-100 border-2 border-dashed border-orange-400 flex items-center justify-center text-[8px] text-slate-500 font-bold">
+                      কোটা
+                    </div>
+                    <span className="text-slate-600">পার্টনার কোটা</span>
+                  </div>
+                )}
+                {isCombineTour && (
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[12px]">🔄</span>
+                    <span className="text-amber-800">রেফার্ড সিট</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-1.5">
+                  <div className="w-5 h-5 rounded-lg bg-[#F5E8FF] border-2 border-[#9333EA] text-[#9333EA] flex items-center justify-center text-[10px]">
                     ♀
                   </div>
-                  <span className="text-[#7E22CE]">মহিলাদের সংরক্ষিত</span>
+                  <span className="text-[#7E22CE]">নারী সংরক্ষিত</span>
                 </div>
               </div>
 
               {/* Visual Bus Interior Graphic */}
               <div className="max-w-[420px] mx-auto bg-[#FDFEFE] rounded-3xl p-5 border-4 border-[#03251A]/20 shadow-md relative">
-                {/* Front of Bus: Driver & Door Header */}
-                <div className="flex items-center justify-between pb-4 mb-6 border-b-2 border-dashed border-gray-300">
-                  {/* Driver Cabin */}
-                  <div className="flex items-center gap-2 bg-[#EDFEEF] px-3 py-1.5 rounded-xl border border-[#BCEEDB]">
-                    <span className="material-symbols-outlined text-[20px] text-[#166B47]">sports_motorsports</span>
-                    <span className="text-xs font-bold text-[#03251A]">ড্রাইভার</span>
+                {/* Front of Bus: Door (Left) & Driver with Steering Wheel (Right) */}
+                <div className="flex items-center justify-between pb-3.5 mb-5 border-b-2 border-dashed border-gray-300">
+                  {/* Passenger Door (Left Side) */}
+                  <div className="flex items-center gap-1.5 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200 text-amber-800 shadow-2xs">
+                    <span className="material-symbols-outlined text-[18px]">sensor_door</span>
+                    <span className="text-xs font-bold">দরজা</span>
                   </div>
 
-                  <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                     সামনের দিক (Front)
                   </span>
 
-                  {/* Passenger Door */}
-                  <div className="flex items-center gap-1.5 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200 text-amber-800">
-                    <span className="material-symbols-outlined text-[18px]">sensor_door</span>
-                    <span className="text-xs font-bold">গেট</span>
+                  {/* Driver Cabin with Steering Wheel Symbol (Right Side) */}
+                  <div className="flex items-center gap-2 bg-[#EDFEEF] px-3 py-1.5 rounded-xl border border-[#BCEEDB] text-[#03251A] shadow-2xs" title="ড্রাইভার সিট (ডান পাশ)">
+                    <span className="text-xs font-bold text-[#03251A]">ড্রাইভার</span>
+                    <svg className="w-5 h-5 text-[#166B47] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-label="Steering wheel">
+                      <circle cx="12" cy="12" r="10" />
+                      <circle cx="12" cy="12" r="2.5" />
+                      <line x1="12" y1="2" x2="12" y2="9.5" />
+                      <line x1="2.5" y1="14" x2="9.8" y2="13" />
+                      <line x1="21.5" y1="14" x2="14.2" y2="13" />
+                    </svg>
                   </div>
                 </div>
 
@@ -334,6 +506,9 @@ export default function TourDetailsPage({
                       const locked = isLockedByOther(seatNo);
                       const selected = isSelected(seatNo);
                       const female = isFemale(seatNo);
+                      const owner = getSeatOwner(seatNo);
+                      const isMine = isMyGroupSeat(seatNo);
+                      const transferred = isSeatTransferred(seatNo);
 
                       let btnStyle = 'bg-white border-2 border-[#168B5E] text-[#111E16] hover:bg-[#EDFEEF] shadow-xs';
                       if (booked) {
@@ -342,6 +517,8 @@ export default function TourDetailsPage({
                         btnStyle = 'bg-amber-100 border border-amber-400 text-amber-800 cursor-not-allowed shadow-none';
                       } else if (selected) {
                         btnStyle = 'bg-[#EF7F45] border-2 border-[#D96327] text-white shadow-md scale-105 font-extrabold ring-2 ring-[#EF7F45]/30';
+                      } else if (!isMine && isCombineTour) {
+                        btnStyle = 'bg-slate-50/90 border-2 border-dashed text-slate-500 hover:bg-slate-100 shadow-2xs opacity-80 hover:opacity-100';
                       } else if (female) {
                         btnStyle = 'bg-[#FAF5FF] border-2 border-[#9333EA] text-[#7E22CE] hover:bg-[#F3E8FF] shadow-xs';
                       }
@@ -352,17 +529,40 @@ export default function TourDetailsPage({
                           type="button"
                           disabled={booked || locked}
                           onClick={() => toggleSeat(seatNo)}
-                          className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex flex-col items-center justify-center text-xs font-bold transition-all duration-150 cursor-pointer ${btnStyle}`}
-                          title={`সিট ${seatNo} ${booked ? '(ইতিমধ্যে বুকড)' : locked ? '(অন্য কেউ লক করে রেখেছেন)' : selected ? '(আপনার নির্বাচিত)' : '(ক্লিক করে সিলেক্ট করুন)'}`}
+                          className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex flex-col items-center justify-center text-xs font-bold transition-all duration-150 cursor-pointer relative ${btnStyle}`}
+                          style={{
+                            borderColor: (!isMine && isCombineTour && !booked && !locked) ? owner?.color || '#CBD5E1' : undefined,
+                          }}
+                          title={`সিট ${seatNo} ${
+                            booked
+                              ? '(ইতিমধ্যে বুকড)'
+                              : locked
+                              ? '(অন্য কেউ লক করে রেখেছেন)'
+                              : !isMine && isCombineTour
+                              ? `(পার্টনার গ্রুপ ${owner?.groupName}-এর কোটায় বরাদ্দকৃত - ক্লিক করে তাদের গ্রুপে সুইচ করুন)`
+                              : selected
+                              ? '(আপনার নির্বাচিত)'
+                              : '(ক্লিক করে সিলেক্ট করুন)'
+                          }`}
                         >
                           <span className="text-[12px] leading-none">{seatNo}</span>
                           {selected ? (
                             <span className="text-[10px] leading-none mt-0.5">✓</span>
+                          ) : !isMine && isCombineTour && !booked && !locked ? (
+                            <span className="text-[7px] leading-none mt-0.5 font-semibold text-slate-500 truncate max-w-[28px]">
+                              {owner?.groupName ? owner.groupName.slice(0, 3) : 'কোটা'}
+                            </span>
                           ) : female && !booked && !locked ? (
                             <span className="text-[9px] leading-none mt-0.5 text-[#9333EA]">♀</span>
                           ) : locked ? (
                             <span className="text-[8px] leading-none mt-0.5 text-amber-700">লক</span>
                           ) : null}
+
+                          {transferred && isMine && !booked && (
+                            <span className="absolute -top-1 -right-1 text-[9px] leading-none" title="রেফার্ড সিট">
+                              🔄
+                            </span>
+                          )}
                         </button>
                       );
                     };
@@ -375,10 +575,8 @@ export default function TourDetailsPage({
                           {renderSeatButton(seat2)}
                         </div>
 
-                        {/* Center Gangway / Aisle */}
-                        <div className="px-2 flex items-center justify-center text-gray-300 font-semibold text-[10px] tracking-wider select-none">
-                          আইল
-                        </div>
+                        {/* Center Gangway / Aisle (Clean spacing, text removed) */}
+                        <div className="w-6 sm:w-8 shrink-0" aria-hidden="true" />
 
                         {/* Right Side: 2 Seats */}
                         <div className="flex items-center gap-2">
@@ -783,8 +981,8 @@ export default function TourDetailsPage({
                   <span className="text-sm font-extrabold text-[#03251A]">{bookingId}</span>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] text-gray-500 uppercase tracking-wider block">ট্যুর অপারেটর</span>
-                  <span className="text-sm font-bold text-[#166B47]">{tour.operator}</span>
+                  <span className="text-[10px] text-gray-500 uppercase tracking-wider block">বুকিং কাউন্টার / অপারেটর</span>
+                  <span className="text-sm font-bold text-[#166B47]">{activeGroup ? activeGroup.groupName : tour.operator}</span>
                 </div>
               </div>
 
