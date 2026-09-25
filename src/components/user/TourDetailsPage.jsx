@@ -72,6 +72,13 @@ export default function TourDetailsPage({
 
   const activeGroup = isCombineTour && partnerGroups.length > 0 ? partnerGroups[activeGroupIndex] : null;
 
+  // Group-specific customized properties (from Combined Tour partner setup)
+  const effectiveTitle = activeGroup?.customTitle || tour.title;
+  const effectivePrice = activeGroup?.price || tour.price;
+  const effectiveOriginalPrice = activeGroup?.originalPrice || tour.originalPrice || 5500;
+  const effectiveDiscount = activeGroup?.discount || (effectiveOriginalPrice - effectivePrice > 0 ? effectiveOriginalPrice - effectivePrice : 0);
+  const effectiveOperator = activeGroup ? activeGroup.groupName : tour.operator;
+
   // Sync if query param changes
   useEffect(() => {
     if (queryGroup && partnerGroups.length > 0) {
@@ -151,7 +158,7 @@ export default function TourDetailsPage({
     }
   };
 
-  const totalPrice = selectedSeats.length * tour.price;
+  const totalPrice = selectedSeats.length * effectivePrice;
 
   const handleBookingSubmit = (e) => {
     e.preventDefault();
@@ -199,7 +206,7 @@ export default function TourDetailsPage({
               <span>/</span>
               <span>{tour.destinationName}</span>
               <span>/</span>
-              <span className="text-white font-medium truncate max-w-[200px]">{tour.title}</span>
+              <span className="text-white font-medium truncate max-w-[200px]">{effectiveTitle}</span>
             </div>
           </div>
 
@@ -224,13 +231,13 @@ export default function TourDetailsPage({
                 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight leading-snug max-w-3xl"
                 style={{ fontFamily: '"Tiro Bangla", serif' }}
               >
-                {tour.title}
+                {effectiveTitle}
               </h1>
 
               <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-[#F0FDF8]">
                 <div className="flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-[18px] text-[#7FE5BA]">verified</span>
-                  <span>হোস্ট: <strong>{activeGroup ? activeGroup.groupName : tour.operator}</strong></span>
+                  <span>হোস্ট: <strong>{effectiveOperator}</strong></span>
                 </div>
                 <div className="flex items-center gap-1 text-amber-300">
                   <span className="material-symbols-outlined text-[18px] fill-current">star</span>
@@ -256,12 +263,19 @@ export default function TourDetailsPage({
 
             <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-[#7FE5BA]/30 shrink-0 text-right">
               <span className="text-xs text-[#7FE5BA] block">প্যাকেজ মূল্য (প্রতি জন)</span>
-              <span
-                className="text-3xl font-extrabold text-white block mt-0.5"
-                style={{ fontFamily: '"Tiro Bangla", serif' }}
-              >
-                ৳{tour.price.toLocaleString('bn-BD')}
-              </span>
+              <div className="flex items-baseline justify-end gap-2 mt-0.5">
+                <span
+                  className="text-3xl font-extrabold text-white block"
+                  style={{ fontFamily: '"Tiro Bangla", serif' }}
+                >
+                  ৳{effectivePrice.toLocaleString('bn-BD')}
+                </span>
+                {effectiveDiscount > 0 && (
+                  <span className="text-xs text-emerald-300 line-through">
+                    ৳{effectiveOriginalPrice.toLocaleString('bn-BD')}
+                  </span>
+                )}
+              </div>
               <span className="text-[11px] text-emerald-200 mt-1 inline-flex items-center gap-1">
                 <span className="material-symbols-outlined text-[14px]">event_seat</span>
                 {tour.seatsTotal - tour.seatsBooked}টি সিট খালি আছে
@@ -642,7 +656,7 @@ export default function TourDetailsPage({
                 <div className="space-y-2.5 py-3 border-t border-b border-gray-100 text-sm">
                   <div className="flex justify-between text-[#5C6B60]">
                     <span>প্যাকেজ ভাড়া (প্রতি সিট)</span>
-                    <span className="font-semibold text-[#111E16]">৳{tour.price.toLocaleString('bn-BD')}</span>
+                    <span className="font-semibold text-[#111E16]">৳{effectivePrice.toLocaleString('bn-BD')}</span>
                   </div>
                   <div className="flex justify-between text-[#5C6B60]">
                     <span>নির্বাচিত সিটের সংখ্যা</span>

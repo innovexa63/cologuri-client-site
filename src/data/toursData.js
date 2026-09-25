@@ -22,6 +22,10 @@ export const allToursData = {
         groupName: 'ঘুরি বাংলাদেশ',
         groupSlug: 'ghuri-bd',
         color: '#166B47',
+        customTitle: 'মেঘ ছোঁয়ার সাজেক ভ্যালি ও কংলাক পাহাড়ি অভিযান',
+        price: 4800,
+        originalPrice: 5500,
+        discount: 700,
         allocatedSeats: [
           'A1', 'A2', 'A3', 'A4',
           'B1', 'B2', 'B3', 'B4',
@@ -29,16 +33,34 @@ export const allToursData = {
           'D1', 'D2', 'D3', 'D4',
           'E1', 'E2', 'E3'
         ],
+        bookedSeats: [
+          'A1', 'A2',
+          'B1', 'B2', 'B3', 'B4',
+          'C1', 'C2',
+          'D1', 'D2', 'D3', 'D4',
+          'E1', 'E2'
+        ],
       },
       {
         groupId: 'g2',
         groupName: 'সবুজ পথিক ট্রাভেলার্স',
         groupSlug: 'sobuj-pathik',
         color: '#C9622B',
+        customTitle: 'সাজেক পূর্ণিমা ও হ্যালিপ্যাড ক্যাম্পিং — সবুজ পথিক',
+        price: 4600,
+        originalPrice: 5200,
+        discount: 600,
         allocatedSeats: [
           'E4',
           'F1', 'F2', 'F3', 'F4',
           'G1', 'G2', 'G3', 'G4',
+          'H1', 'H2', 'H3', 'H4',
+          'I1', 'I2', 'I3', 'I4',
+          'J1', 'J2', 'J3', 'J4'
+        ],
+        bookedSeats: [
+          'F1', 'F2', 'F3',
+          'G1', 'G2',
           'H1', 'H2', 'H3', 'H4',
           'I1', 'I2', 'I3', 'I4',
           'J1', 'J2', 'J3', 'J4'
