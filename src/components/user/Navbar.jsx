@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import BrandLogo from '../common/BrandLogo';
+import UserProfileDropdown from './UserProfileDropdown';
 
 const navLinks = [
   { label: 'লাইভ ট্যুর', path: '/live-tours' },
@@ -166,19 +167,8 @@ export default function Navbar({
             )}
           </div>
 
-          {/* User profile avatar */}
-          <a
-            href="#profile"
-            className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-105 shadow-xs"
-            style={{
-              backgroundColor: scrolled ? '#03251A' : 'rgba(255, 255, 255, 0.18)',
-              border: scrolled ? 'none' : '1px solid rgba(127, 229, 186, 0.4)',
-              color: '#FFFFFF',
-            }}
-            aria-label="ব্যবহারকারী প্রোফাইল"
-          >
-            <span className="material-symbols-outlined text-[20px]">person</span>
-          </a>
+          {/* User Profile & Menu Dropdown (Hi! Md Nurunnabi...) */}
+          <UserProfileDropdown scrolled={hasSolidNav} />
 
           {/* Mobile menu toggle */}
           <button
